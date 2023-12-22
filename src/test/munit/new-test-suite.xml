@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:munit="http://www.mulesoft.org/schema/mule/munit"
+	xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+	<munit:config name="new-test-suite.xml" />
+	<munit:test name="new-test-suite-MultiplyFlow" doc:id="6d12a2a7-8c92-4ad4-8a69-db63606484a9" description="Test">
+		<munit:behavior>
+			<munit-tools:mock-when doc:name="Mock when" doc:id="95e78173-ee77-4adb-b17f-ccac9e6197b2" processor="http:request">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="79322ca6-655a-426a-bbd4-f2731d6f5b06" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value='#["300"]' />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<munit:set-event doc:name="Set Event" doc:id="8ef051f1-ed7d-4c73-b407-4463d533d622" >
+				<munit:payload value='#[output application/json&#10;---&#10;{&#10;	"intA":300,&#10;	"intB":0&#10;}]' mediaType="application/json" />
+			</munit:set-event>
+			<flow-ref doc:name="Multiflow" doc:id="2df9f247-0532-480f-8cf6-5e991e944ede" name="Multiply_Flow"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-equals doc:name="Assert equals" doc:id="ca25a5d8-a9d2-4bfa-a263-e8e605b84159" actual="#[payload]" expected='#[300]'/>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="new-test-suite-SubtractFlow" doc:id="a315532a-e2ab-4789-8362-a0b1fc10b1ee" >
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="68190d76-9549-419e-b51c-768000bc0aeb" processor="http:request">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="a97762ad-6bf7-4300-a002-ef206a62517b" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value='#["300"]' />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<munit:set-event doc:name="Set Event" doc:id="3afadde8-d962-4acb-97d2-6bbce554a112" >
+				<munit:payload value="#[output application/json&#10;---&#10;{&#10;	totalSeats:300,&#10;	emptySeats:0&#10;}]" />
+			</munit:set-event>
+			<flow-ref doc:name="Flow Reference" doc:id="673ff235-e209-4040-981b-406d95bd7dcf" name="SubTract_Flow"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-equals doc:name="Assert equals" doc:id="fde1a876-961d-4c77-afd7-9d5fbf18de7c" actual="#[payload]" expected='#[300]'/>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="new-test-suite-experienceFlow" doc:id="ea24d20d-2924-447f-a46b-a08844b9224a" >
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="fa5adfeb-c28e-4a5b-b371-9032901403e5" processor="http:request">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="0ee33b5b-ff06-4475-82d7-fa03913b2e98" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:variables >
+						<munit-tools:variable key="payload" value="#[readUrl('classpath://sample_data/getSystemCall.json')]" />
+					</munit-tools:variables>
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Subtract call process" doc:id="c2e03f1c-6c6c-412c-b0a6-7caa538c8cf8" processor="http:request" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="a97762ad-6bf7-4300-a002-ef206a62517b" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:variables >
+						<munit-tools:variable key="risultato" value='#["300"]' />
+					</munit-tools:variables>
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Multiply call process" doc:id="3e49a935-65fd-486d-ab23-83ec53de0f53" processor="http:request" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="79322ca6-655a-426a-bbd4-f2731d6f5b06" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:variables >
+						<munit-tools:variable key="risultato1" value='#["300"]' />
+					</munit-tools:variables>
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<munit:set-event doc:name="Set Event" doc:id="91751041-ff3b-4627-a16e-e74d5662d46d" >
+				<munit:attributes value='#[output application/json&#10;---&#10;{&#10;	queryParams:{&#10;		destination: "LAX"&#10;	}&#10;}]' />
+			</munit:set-event>
+			<flow-ref doc:name="Flow Reference" doc:id="8d20913a-6fc7-45f4-85b1-9b2259c8fd53" name="calculationFlow"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-equals doc:name="Assert equals" doc:id="fdb8a119-0cbd-4328-8f4e-b9690e123972" actual="#[payload]" expected='#[output application/json&#10;---&#10;{&#10;    "destination": "LAX",&#10;    "planes": [&#10;        {&#10;            "type": "Boeing 777",&#10;            "pricePerSeats": "600£"&#10;        },&#10;        {&#10;            "type": "Boeing 737",&#10;            "pricePerSeats": "300£"&#10;        }&#10;    ]&#10;}]'/>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="new-test-suite-APIkit" doc:id="961ffe1e-f097-43ca-b2a5-2067557d9d3a" >
+		<munit:execution >
+			<http:listener doc:name="Listener" doc:id="b03ed3d3-6442-478f-9769-75600f1031f0" config-ref="calculation-httpListenerConfig" path="/api*"/>
+		</munit:execution>
+	</munit:test>
+	
+
+
+</mule>

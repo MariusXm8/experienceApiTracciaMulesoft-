@@ -1,0 +1,20 @@
+http:
+  port: "8084"
+  
+dest:
+  port: "8082"
+  path: "/api"
+
+subtract:
+  port: "8083"
+  path: "/api"
+
+multiply:
+  port: "8085"
+  path: "/api"
+  
+all:
+  host: "localhost"
+  
+
+  

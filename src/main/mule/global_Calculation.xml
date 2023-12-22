@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+	<configuration-properties doc:name="Configuration properties" doc:id="86756381-599e-422c-ad21-5fa510a57d0d" file="Config.yaml" />
+	<http:request-config name="getDest_Request_configuration" doc:name="HTTP Request configuration" doc:id="913b06fc-22f4-4ed0-aa97-9f0f17be6e18" basePath="${dest.path}">
+		<http:request-connection port="${dest.port}" host="${all.host}" connectionIdleTimeout="-1"/>
+	</http:request-config>
+	<http:request-config name="subtract_Request_configuration" doc:name="HTTP Request configuration" doc:id="a59b8dbb-5717-4084-9770-2af770a40180" basePath="${subtract.path}">
+		<http:request-connection host="${all.host}" port="${subtract.port}" connectionIdleTimeout="-1"/>
+	</http:request-config>
+	<http:request-config name="multiply_Request_configuration" doc:name="HTTP Request configuration" doc:id="23b2a1fc-e700-4159-a85c-b5a736b5530a" basePath="${multiply.path}">
+		<http:request-connection host="${all.host}" port="${multiply.port}" connectionIdleTimeout="-1"/>
+	</http:request-config>
+</mule>

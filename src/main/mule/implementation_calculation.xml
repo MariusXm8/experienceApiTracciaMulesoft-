@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+	<sub-flow name="Multiply_Flow" doc:id="f4617b2d-aa1d-470c-b115-80e9e82f4953" >
+		<ee:transform doc:name="Transform Message" doc:id="8e0853d1-c9ba-4f17-a12b-a0734d8f86a4">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<http:request method="POST" doc:name="CalMultiply" doc:id="79322ca6-655a-426a-bbd4-f2731d6f5b06" config-ref="multiply_Request_configuration" path="/Multiply" target="risultato1">
+			<http:body ><![CDATA[#[%dw 2.0
+output application/json
+---
+{
+"intA": vars.intA ,
+"intB": vars.intB 
+}]]]></http:body>
+		</http:request>
+		<set-variable value="#[vars.risultato1]" doc:name="Set Variable" doc:id="85dfee6e-51a7-4424-8a31-506ba11f8f8e" variableName="risultatoF"/>
+	</sub-flow>
+	<sub-flow name="SubTract_Flow" doc:id="665c7717-afad-4a56-9824-fe415f872cb1" >
+		<ee:transform doc:name="Transform Message" doc:id="4fd7e6d3-4715-4e85-8753-7dc25556ddf3" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<http:request method="POST" doc:name="CalSubtract" doc:id="a97762ad-6bf7-4300-a002-ef206a62517b" config-ref="subtract_Request_configuration" path="/Subtract" target="risultato">
+			<http:body ><![CDATA[#[{
+"intA": payload.totalSeats ,
+"intB": payload.emptySeats
+
+}]]]></http:body>
+		</http:request>
+		<set-variable value="#[vars.risultato]" doc:name="intAA" doc:id="17ed4678-f805-4ea3-a057-1cca4b1f949f" variableName="intA" />
+	</sub-flow>
+	<sub-flow name="ciclo_Flow" doc:id="bf23a282-7469-4c55-9901-0561bb447586" >
+		<ee:transform doc:name="Json to Java" doc:id="e3526318-077b-4bc8-b457-d43eaa1d54d9">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/java
+---
+vars.payload map ( payload01 , indexOfPayload01 ) -> {
+	price: payload01.price,
+	emptySeats: payload01.emptySeats,	
+	totalSeats: payload01.plane.totalSeats
+	
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<set-variable value="#[[]]" doc:name="totale" doc:id="eb569b57-e755-4194-b682-35ea2f2d37d7" variableName="totale"/>
+		<foreach doc:name="For Each" doc:id="ca8e0a53-ee3d-4119-afe5-6768c1d042ec" >
+			<set-variable value="#[payload.totalSeats as Number]" doc:name="intA" doc:id="de3ea5e2-9f99-4825-b04d-7b9d375aa7dd" variableName="intA"/>
+			<set-variable value="#[payload.emptySeats as Number]" doc:name="intB" doc:id="94b6912b-b412-4830-9f1c-f1e315c0328e" variableName="intB"/>
+			<flow-ref doc:name="CallSubtract" doc:id="daaf44dc-2bda-4cab-a0b6-61f92b188c3a" name="SubTract_Flow" target="intB"/>
+			<set-variable value="#[payload.price as Number]" doc:name="intBB" doc:id="eca50000-993d-4b0b-8efb-0913a3f2e28a" variableName="intB"/>
+			<flow-ref doc:name="CallMultiply" doc:id="ca168132-aeb6-4a58-ade1-fd7f5fcac578" name="Multiply_Flow"/>
+			<set-variable value="#[%dw 2.0&#10;output application/java&#10;---&#10;vars.totale + vars.risultato1]" doc:name="totale" doc:id="e83e5315-c608-4fce-87c6-77263f9e8915" variableName="totale"/>
+		</foreach>
+		<logger level="INFO" doc:name="Logger" doc:id="16ac7167-7e54-4132-aeb8-ec82526d7f62" message="#[vars.payload]"/>
+	</sub-flow>
+	<flow name="calculationFlow" doc:id="e7432f4b-bda1-429c-ac29-b579332b68b2" >
+		<set-variable value='#[message.attributes.queryParams.destination default "SFO"]' doc:name="dest" doc:id="7f9443d1-07ac-4470-8fb4-831377f4212b" variableName="dest"/>
+		<http:request method="GET" doc:name="getAllFlightsWithDest" doc:id="0ee33b5b-ff06-4475-82d7-fa03913b2e98" config-ref="getDest_Request_configuration" path="/flights" target="payload">
+			<http:query-params ><![CDATA[#[output application/java
+---
+{
+	"destination" : vars.dest
+}]]]></http:query-params>
+		</http:request>
+		<flow-ref doc:name="ciclo_Flow" doc:id="eb47c78c-4091-458b-9ca1-57132a9989c4" name="ciclo_Flow"/>
+		<ee:transform doc:name="Final response" doc:id="5b4d8462-c22b-485d-9119-e4e040829d98" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+var finalPayload=
+	vars.payload map((item,index)->{
+		"type": item.plane."type",
+		price: vars.totale[index]
+	}) 
+
+//vado ad sovrascrivere il totalseats con il calcolo delle sedie
+
+var SumDuplicates=finalPayload groupBy((item2)-> item2."type")  pluck ((value, key, index) ->{
+    "type":key,
+    pricePerSeats:sum(value.price ) ++"£"
+} ) 
+//sommo i duplicati
+---
+{
+	destination:vars.dest,
+	planes:SumDuplicates
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="fcef2cf8-ac25-43b1-bac4-c8941856910d" />
+	</flow>
+</mule>
